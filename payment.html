@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payment - Feelix</title>
+
+  <style>
+    body{
+      margin:0;
+      font-family: Arial;
+      color:white;
+      text-align:center;
+      background: url("robot background.jpg") no-repeat center center/cover;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background: rgba(0,0,0,0.5);
+      z-index:0;
+    }
+
+    .container{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      position:relative;
+      z-index:1;
+    }
+
+    .card{
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      padding:20px;
+      border-radius:14px;
+      width:280px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .box{
+      background: rgba(255,255,255,0.1);
+      padding:12px;
+      border-radius:10px;
+      margin-bottom:15px;
+      text-align:left;
+      font-size:14px;
+    }
+
+    .total{
+      color:#22c55e;
+      font-weight:bold;
+    }
+
+    #qr{
+      width:150px;
+      margin:10px 0;
+      border-radius:8px;
+    }
+
+    button{
+      padding:8px 16px;
+      border:none;
+      border-radius:8px;
+      background: linear-gradient(45deg,#22c55e,#4ade80);
+      color:white;
+      cursor:pointer;
+      margin-top:10px;
+    }
+
+    .upload-box{
+      border:2px dashed rgba(255,255,255,0.3);
+      padding:10px;
+      border-radius:10px;
+      margin-top:10px;
+    }
+
+    #preview{
+      width:100px;
+      margin-top:10px;
+      border-radius:8px;
+      display:none;
+    }
+
+    .file-upload{
+      display:inline-block;
+      padding:8px 14px;
+      background: linear-gradient(45deg,#22c55e,#4ade80);
+      border-radius:8px;
+      cursor:pointer;
+      font-size:13px;
+      margin-top:5px;
+    }
+
+    .file-upload input{
+      display:none;
+    }
+
+    #fileName{
+      font-size:12px;
+      margin-top:5px;
+      color:#ccc;
+    }
+
+    #successBox{
+      margin-top:15px;
+      padding:10px;
+      background: rgba(34,197,94,0.2);
+      border-radius:10px;
+      display:none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(10px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <h2>Order Details</h2>
+
+    <div class="box" id="bill"></div>
+
+    <!-- UPI SECTION -->
+    <div id="upiSection">
+      <p>Scan & Pay</p>
+      <img id="qr" src="UPI.jpeg">
+
+      <!-- UPLOAD BOX -->
+      <div class="upload-box" id="uploadBox">
+        <p>Upload Screenshot</p>
+
+        <label class="file-upload">
+          Choose File
+          <input type="file" id="file">
+        </label>
+
+        <img id="preview">
+        <p id="fileName">No file chosen</p>
+      </div>
+    </div>
+
+    <button onclick="confirmOrder()">Confirm Order</button>
+    <br>
+    <button onclick="goBack()">⬅ Back</button>
+
+    <div id="successBox">
+      <h3>✅ Payment Verified</h3>
+      <p>Order Placed Successfully!</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+// GET DATA
+let name = localStorage.getItem("name");
+let quantity = parseInt(localStorage.getItem("quantity"));
+let payment = localStorage.getItem("payment");
+
+if(!quantity || quantity <= 0) quantity = 1;
+
+let price = 1000;
+let total = quantity * price;
+
+// BILL
+document.getElementById("bill").innerHTML = `
+Name: ${name}<br>
+Quantity: ${quantity}<br>
+<span class="total">Total: ₹${total}</span><br>
+Payment: ${payment}
+`;
+
+// TRACK PAYMENT CLICK
+let paymentDone = false;
+
+document.getElementById("qr").addEventListener("click", function(){
+  paymentDone = true;
+  alert("After payment, upload screenshot");
+});
+
+// HIDE UPI FOR COD
+if(payment === "COD"){
+  document.getElementById("upiSection").style.display = "none";
+}
+
+// FILE PREVIEW
+document.getElementById("file").addEventListener("change", function(){
+  let file = this.files[0];
+
+  if(file){
+    document.getElementById("fileName").innerText = file.name;
+
+    let reader = new FileReader();
+    reader.onload = function(e){
+      let img = document.getElementById("preview");
+      img.src = e.target.result;
+      img.style.display = "block";
+    }
+    reader.readAsDataURL(file);
+  }
+});
+
+// CONFIRM ORDER
+function confirmOrder(){
+
+  let file = document.getElementById("file").files[0];
+
+  if(payment === "UPI"){
+    if(!paymentDone){
+      alert("Please scan & pay first");
+      return;
+    }
+
+    if(!file){
+      alert("Upload payment screenshot");
+      return;
+    }
+  }
+
+  document.getElementById("successBox").style.display = "block";
+}
+
+// BACK
+function goBack(){
+  window.history.back();
+}
+
+</script>
+
+</body>
+</html>
