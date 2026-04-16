@@ -219,11 +219,7 @@ function confirmOrder(){
 
   let file = document.getElementById("file").files[0];
 
-  if(payment === "UPI"){
-    if(!paymentDone){
-      alert("Please scan & pay first");
-      return;
-    }
+  
 
     if(!file){
       alert("Upload payment screenshot");
