@@ -73,47 +73,13 @@
       margin-top:10px;
     }
 
-    .upload-box{
-      border:2px dashed rgba(255,255,255,0.3);
-      padding:10px;
-      border-radius:10px;
-      margin-top:10px;
-    }
-
-    #preview{
-      width:100px;
-      margin-top:10px;
-      border-radius:8px;
-      display:none;
-    }
-
-    .file-upload{
-      display:inline-block;
-      padding:8px 14px;
-      background: linear-gradient(45deg,#22c55e,#4ade80);
-      border-radius:8px;
-      cursor:pointer;
-      font-size:13px;
-      margin-top:5px;
-    }
-
-    .file-upload input{
-      display:none;
-    }
-
-    #fileName{
+    .note{
       font-size:12px;
-      margin-top:5px;
       color:#ccc;
+      margin-top:10px;
+      line-height:1.4;
     }
 
-    #successBox{
-      margin-top:15px;
-      padding:10px;
-      background: rgba(34,197,94,0.2);
-      border-radius:10px;
-      display:none;
-    }
   </style>
 </head>
 
@@ -131,17 +97,9 @@
       <p>Scan & Pay</p>
       <img id="qr" src="UPI.jpeg">
 
-      <div class="upload-box">
-        <p>Upload Screenshot</p>
-
-        <label class="file-upload">
-          Choose File
-          <input type="file" id="file">
-        </label>
-
-        <img id="preview">
-        <p id="fileName">No file chosen</p>
-      </div>
+      <p class="note">
+        📌 After payment, please send the QR payment screenshot on WhatsApp to confirm your order.
+      </p>
     </div>
 
     <button onclick="confirmOrder()">Confirm Order</button>
@@ -174,40 +132,16 @@ if(payment === "COD"){
   document.getElementById("upiSection").style.display = "none";
 }
 
-// FILE PREVIEW
-document.getElementById("file").addEventListener("change", function(){
-  let file = this.files[0];
-
-  if(file){
-    document.getElementById("fileName").innerText = file.name;
-
-    let reader = new FileReader();
-    reader.onload = function(e){
-      let img = document.getElementById("preview");
-      img.src = e.target.result;
-      img.style.display = "block";
-    }
-    reader.readAsDataURL(file);
-  }
-});
-
 // CONFIRM ORDER
 function confirmOrder(){
-
-  let file = document.getElementById("file").files[0];
-
-  if(payment === "UPI" && !file){
-    alert("Upload payment screenshot");
-    return;
-  }
 
   let message = `New Order%0A
 Name: ${name}%0A
 Quantity: ${quantity}%0A
 Total: ₹${total}%0A
-Payment: ${payment}`;
+Payment: ${payment}%0A
+%0APlease send payment screenshot`;
 
-  // 🔴 PUT YOUR WHATSAPP NUMBER HERE
   let phone = "918133909528";
 
   window.open(`https://wa.me/${phone}?text=${message}`);
