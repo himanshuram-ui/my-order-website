@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feelix · Choose your order</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      color: white;
+      background: url("robot.jpg") no-repeat center center/cover;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* dark overlay — same as original */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: -1;
+    }
+
+    .main-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ----- TWO CARDS (left & right) ----- */
+    .type-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch;
+      gap: 24px;
+      max-width: 800px;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+
+    .type-card {
+      flex: 1 1 260px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 28px 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      border: 1.5px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s ease;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .type-card.active {
+      border: 2px solid #4ade80;
+      box-shadow: 0 0 28px rgba(74, 222, 128, 0.5);
+      background: rgba(30, 40, 50, 0.25);
+      transform: translateY(-4px);
+    }
+
+    .type-card:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .type-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .type-card h3 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    .type-badge {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-block;
+      margin-bottom: 16px;
+      backdrop-filter: blur(4px);
+    }
+
+    .type-desc {
+      font-size: 15px;
+      opacity: 0.9;
+      margin-bottom: 24px;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .select-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: 0.2s;
+      margin-top: 8px;
+    }
+
+    .type-card.active .select-btn {
+      background: #4ade80;
+      border-color: #4ade80;
+      color: #0a1f0e;
+      box-shadow: 0 0 18px #4ade80aa;
+    }
+
+    .select-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* ----- MAIN ORDER CARD (same design as original, enhanced) ----- */
+    .order-card {
+      width: 100%;
+      max-width: 460px;
+      padding: 30px 28px;
+      border-radius: 28px;
+      background: rgba(20, 20, 30, 0.2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 25px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: box-shadow 0.3s;
+    }
+
+    .order-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    .order-header h2 {
+      font-size: 26px;
+      font-weight: 600;
+      background: linear-gradient(to right, #fff, #e2e8f0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .order-type-tag {
+      background: #4ade80;
+      color: #0a1f0e;
+      padding: 5px 14px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      box-shadow: 0 0 12px #4ade8090;
+    }
+
+    /* input fields — same feel */
+    .input-field {
+      width: 100%;
+      padding: 14px 18px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 18px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.92);
+      color: #111;
+      font-size: 16px;
+      font-weight: 500;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: 0.2s;
+    }
+
+    .input-field:focus {
+      background: white;
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.4);
+    }
+
+    .payment {
+      margin-top: 18px;
+    }
+
+    .payment p {
+      margin-bottom: 12px;
+      font-weight: 500;
+      font-size: 16px;
+      opacity: 0.95;
+    }
+
+    .payment label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 14px 0;
+      padding: 6px 8px;
+      border-radius: 14px;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.1);
+      transition: background 0.15s;
+    }
+
+    .payment label:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .payment input[type="radio"] {
+      accent-color: #4ade80;
+      width: 20px;
+      height: 20px;
+      margin-left: 10px;
+    }
+
+    /* confirm button */
+    .btn {
+      width: 100%;
+      margin-top: 28px;
+      padding: 16px;
+      border: none;
+      border-radius: 40px;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #4ade80);
+      box-shadow: 0 8px 22px rgba(34, 197, 94, 0.4);
+      transition: 0.25s;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      letter-spacing: 0.5px;
+    }
+
+    .btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(74, 222, 128, 0.8);
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+    }
+
+    .note {
+      text-align: center;
+      font-size: 13px;
+      color: #ccd6f0;
+      margin-top: 18px;
+      opacity: 0.9;
+    }
+
+    /* helper */
+    .flex-center {
+      display: flex;
+      justify-content: center;
+    }
+
+    .hidden-selected-info {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+
+  <!-- TWO TYPE CARDS (regular & customized) left & right -->
+  <div class="type-row">
+    <!-- REGULAR CARD -->
+    <div class="type-card" id="regularCard" data-type="regular">
+      <div class="type-icon">📦</div>
+      <h3>Regular</h3>
+      <span class="type-badge">Standard delivery</span>
+      <div class="type-desc">
+        Quick & simple · fixed options<br>
+        Ready-to-ship in 24h.
+      </div>
+      <button class="select-btn" id="selectRegularBtn">Select Regular</button>
+    </div>
+
+    <!-- CUSTOMIZED CARD -->
+    <div class="type-card" id="customCard" data-type="customized">
+      <div class="type-icon">✨</div>
+      <h3>Customized</h3>
+      <span class="type-badge">Tailored for you</span>
+      <div class="type-desc">
+        Personalized specs · extra care<br>
+        Our team will contact you.
+      </div>
+      <button class="select-btn" id="selectCustomBtn">Select Custom</button>
+    </div>
+  </div>
+
+  <!-- MAIN ORDER CARD (appears after type selection? we always show it, but tag updates) -->
+  <div class="order-card" id="orderFormCard">
+    <div class="order-header">
+      <h2>Place Your Order</h2>
+      <span class="order-type-tag" id="orderTypeTag">Regular</span>
+    </div>
