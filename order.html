@@ -1,999 +1,484 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Feelix · Choose & order</title>
-  
-  <!-- QR Code generation library -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-  
-  <style>
-    :root {
-      --yellow: #facc15;
-      --green: #4ade80;
-      --glass-bg: rgba(20, 20, 30, 0.65);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --card-shadow: 0 25px 45px -10px rgba(0,0,0,0.7);
-      --radius: 24px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Contact · Feelix</title>
+    <style>
+        :root {
+            --yellow: #facc15;
+            --green: #4ade80;
+            --glass-bg: rgba(18, 18, 28, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --radius: 24px;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            color: #f1f5f9;
+            background: #0a0a14;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Background layers */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+        }
+        .bg-image {
+            position: absolute;
+            inset: 0;
+            background: url("robot.jpg") no-repeat center center/cover;
+            opacity: 0.35;
+            filter: saturate(0.6) brightness(0.45);
+        }
+        .bg-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 30%, rgba(22,18,35,0.75) 0%, #050510 90%);
+        }
+        .particles-container {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--yellow);
+            opacity: 0;
+            animation: floatUp var(--dur) var(--delay) infinite ease-in;
+            will-change: transform, opacity;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(105vh) translateX(0) scale(0); opacity: 0; }
+            10% { opacity: 0.7; }
+            25% { transform: translateY(70vh) translateX(var(--drift)) scale(var(--size)); opacity: 0.5; }
+            50% { transform: translateY(38vh) translateX(calc(var(--drift)*0.3)) scale(calc(var(--size)*0.7)); opacity: 0.25; }
+            75% { transform: translateY(12vh) translateX(calc(var(--drift)*-0.4)) scale(calc(var(--size)*0.4)); opacity: 0.08; }
+            100% { transform: translateY(-10vh) translateX(0) scale(0); opacity: 0; }
+        }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+        .wrapper {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 0 24px 32px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', 'Arial', sans-serif;
-      color: #f1f5f9;
-      background: #0a0a14;
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+        /* Top bar with three‑dot menu */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 0 10px;
+            position: relative;
+            z-index: 10;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: white;
+            text-shadow: 0 4px 20px rgba(250,204,21,0.35);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-emoji {
+            display: inline-block;
+            animation: botBounce 2.2s ease-in-out infinite;
+        }
+        @keyframes botBounce {
+            0%,100%{ transform: translateY(0); }
+            25% { transform: translateY(-4px); }
+            45% { transform: translateY(0); }
+            60% { transform: translateY(-2px); }
+            75% { transform: translateY(0); }
+        }
 
-    /* ---- animated background layers ---- */
-    .bg-layer {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      pointer-events: none;
-    }
-    .bg-image {
-      position: absolute;
-      inset: 0;
-      background: url("background.jpeg") no-repeat center center/cover;
-      opacity: 0.3;
-      filter: saturate(0.5) brightness(0.4);
-    }
-    .bg-overlay {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 30%, rgba(22,18,35,0.75) 0%, #050510 90%);
-    }
+        /* Three-dot menu button */
+        .menu-container { position: relative; z-index: 100; }
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: rgba(20,20,32,0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1.2);
+            position: relative;
+            z-index: 101;
+            outline: none;
+            padding: 0;
+        }
+        .menu-btn:hover {
+            background: rgba(30,30,45,0.8);
+            border-color: rgba(250,204,21,0.55);
+            box-shadow: 0 0 28px rgba(250,204,21,0.35), 0 8px 20px rgba(0,0,0,0.5);
+            transform: scale(1.04);
+        }
+        .menu-btn:active { transform: scale(0.92); transition: transform 0.1s; }
+        .menu-btn:focus-visible { outline: 2px solid #facc15; outline-offset: 4px; }
+        .dots-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            pointer-events: none;
+            transition: gap 0.3s;
+        }
+        .dots-icon span {
+            display: block;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            transition: all 0.3s;
+            box-shadow: 0 0 6px rgba(250,204,21,0.3);
+        }
+        .menu-btn:hover .dots-icon span { background: #facc15; box-shadow: 0 0 10px rgba(250,204,21,0.7); }
+        .menu-btn.active .dots-icon { gap: 6px; }
+        .menu-btn.active .dots-icon span:nth-child(2) { opacity: 0.6; }
 
-    /* floating particles */
-    .particles-container {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-    }
-    .particle {
-      position: absolute;
-      border-radius: 50%;
-      background: var(--yellow);
-      opacity: 0;
-      animation: floatUp var(--dur) var(--delay) infinite ease-in;
-      will-change: transform, opacity;
-    }
-    @keyframes floatUp {
-      0% { transform: translateY(105vh) translateX(0) scale(0); opacity: 0; }
-      10% { opacity: 0.7; }
-      25% { transform: translateY(70vh) translateX(var(--drift)) scale(var(--size)); opacity: 0.5; }
-      50% { transform: translateY(38vh) translateX(calc(var(--drift)*0.3)) scale(calc(var(--size)*0.7)); opacity: 0.25; }
-      75% { transform: translateY(12vh) translateX(calc(var(--drift)*-0.4)) scale(calc(var(--size)*0.4)); opacity: 0.08; }
-      100% { transform: translateY(-10vh) translateX(0) scale(0); opacity: 0; }
-    }
+        .quick-dropdown {
+            position: absolute;
+            top: 58px;
+            right: 0;
+            background: rgba(14,14,26,0.94);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid rgba(250,204,21,0.3);
+            border-radius: 20px;
+            padding: 10px 8px;
+            min-width: 200px;
+            box-shadow: 0 28px 50px -12px rgba(0,0,0,0.75), 0 0 0 1px rgba(250,204,21,0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-14px) scale(0.9);
+            transition: all 0.28s cubic-bezier(0.22,0.9,0.36,1);
+            pointer-events: none;
+        }
+        .quick-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            color: #e2e8f0;
+            font-weight: 500;
+            font-size: 1.05rem;
+            text-decoration: none;
+            transition: all 0.22s;
+            border: 1px solid transparent;
+        }
+        .quick-link:hover {
+            background: rgba(250,204,21,0.12);
+            border-color: rgba(250,204,21,0.45);
+            color: #facc15;
+            transform: translateX(6px);
+        }
+        .quick-link .link-icon { font-size: 1.35rem; transition: transform 0.25s; display: inline-block; }
+        .quick-link:hover .link-icon { transform: scale(1.25) rotate(-10deg); }
+        .dropdown-note { font-size: 0.68rem; color: #777; text-align: right; margin-top: 8px; padding-right: 8px; }
 
-    .wrapper {
-      max-width: 1020px;
-      margin: 0 auto;
-      padding: 0 24px 32px;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+        /* Content */
+        .content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
 
-    /* ---- top bar ---- */
-    .top-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 0 10px;
-      position: relative;
-      z-index: 10;
-    }
-    .logo {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      color: white;
-      text-shadow: 0 4px 16px rgba(250, 204, 21, 0.35);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .logo-emoji {
-      display: inline-block;
-      animation: botBounce 2.2s ease-in-out infinite;
-    }
-    @keyframes botBounce {
-      0%, 100% { transform: translateY(0); }
-      25% { transform: translateY(-4px); }
-      45% { transform: translateY(0); }
-      60% { transform: translateY(-2px); }
-      75% { transform: translateY(0); }
-    }
+        .contact-card {
+            width: 100%;
+            max-width: 460px;
+            padding: 36px 28px;
+            border-radius: 32px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 25px 45px -10px rgba(0,0,0,0.7);
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            animation: fadeInUp 0.8s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .contact-card h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #fff 0%, #facc15 50%, #fff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subhead {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
 
-    /* ---------- REDESIGNED THREE-DOT MENU ---------- */
-    .menu-container {
-      position: relative;
-      z-index: 100;
-    }
-    .menu-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      background: rgba(20, 20, 32, 0.65);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 50%;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
-      position: relative;
-      z-index: 101;
-      outline: none;
-      padding: 0;
-    }
-    .menu-btn:hover {
-      background: rgba(30, 30, 45, 0.8);
-      border-color: rgba(250, 204, 21, 0.55);
-      box-shadow: 0 0 28px rgba(250, 204, 21, 0.35), 0 8px 20px rgba(0, 0, 0, 0.5);
-      transform: scale(1.04);
-    }
-    .menu-btn:active {
-      transform: scale(0.92);
-      transition: transform 0.1s;
-    }
-    .menu-btn:focus-visible {
-      outline: 2px solid #facc15;
-      outline-offset: 4px;
-    }
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 18px;
+            padding: 14px 18px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: left;
+        }
+        .info-icon {
+            font-size: 1.8rem;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(250,204,21,0.08);
+            border-radius: 14px;
+        }
+        .info-text .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+        }
+        .info-text .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            word-break: break-word;
+        }
+        .info-text a {
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px dotted rgba(250,204,21,0.5);
+        }
+        .info-text a:hover { color: #facc15; }
 
-    .dots-icon {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      pointer-events: none;
-      transition: gap 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
-    }
-    .dots-icon span {
-      display: block;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: #f1f5f9;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
-      box-shadow: 0 0 6px rgba(250, 204, 21, 0.3);
-    }
-    .menu-btn:hover .dots-icon span {
-      background: #facc15;
-      box-shadow: 0 0 10px rgba(250, 204, 21, 0.7);
-    }
-    .menu-btn.active .dots-icon {
-      gap: 6px;
-    }
-    .menu-btn.active .dots-icon span:nth-child(2) {
-      opacity: 0.6;
-    }
+        /* Two action buttons side by side */
+        .action-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 30px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 16px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1.2);
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            color: white;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .whatsapp-btn {
+            background: rgba(37, 211, 102, 0.2);
+            border: 1.5px solid rgba(37, 211, 102, 0.5);
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.15);
+        }
+        .whatsapp-btn:hover {
+            background: rgba(37, 211, 102, 0.4);
+            border-color: #25d366;
+            box-shadow: 0 0 28px rgba(37, 211, 102, 0.6);
+            transform: translateY(-3px);
+        }
+        .call-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1.5px solid rgba(59, 130, 246, 0.5);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+        }
+        .call-btn:hover {
+            background: rgba(59, 130, 246, 0.4);
+            border-color: #3b82f6;
+            box-shadow: 0 0 28px rgba(59, 130, 246, 0.6);
+            transform: translateY(-3px);
+        }
+        .action-btn span { font-size: 1.4rem; }
 
-    .quick-dropdown {
-      position: absolute;
-      top: 58px;
-      right: 0;
-      background: rgba(14, 14, 26, 0.94);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      border: 1px solid rgba(250, 204, 21, 0.3);
-      border-radius: 20px;
-      padding: 10px 8px;
-      min-width: 200px;
-      box-shadow: 0 28px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(250, 204, 21, 0.1), 0 0 60px rgba(250, 204, 21, 0.08);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-14px) scale(0.9);
-      transition: all 0.28s cubic-bezier(0.22, 0.9, 0.36, 1);
-      pointer-events: none;
-    }
-    .quick-dropdown.open {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
-    }
+        .footer-note {
+            text-align: center;
+            margin-top: auto;
+            padding: 24px 0 12px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            border-top: 1px dashed rgba(250,204,21,0.15);
+            animation: fadeInUp 1s ease;
+        }
 
-    .quick-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      margin: 2px 0;
-      border-radius: 14px;
-      color: #e2e8f0;
-      font-weight: 500;
-      font-size: 1.05rem;
-      text-decoration: none;
-      background: transparent;
-      transition: all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1.1);
-      border: 1px solid transparent;
-    }
-    .quick-link:hover {
-      background: rgba(250, 204, 21, 0.12);
-      border-color: rgba(250, 204, 21, 0.45);
-      color: #facc15;
-      transform: translateX(6px);
-    }
-    .quick-link .link-icon {
-      font-size: 1.35rem;
-      transition: transform 0.25s;
-      display: inline-block;
-    }
-    .quick-link:hover .link-icon {
-      transform: scale(1.25) rotate(-10deg);
-    }
-    .dropdown-note {
-      font-size: 0.7rem;
-      color: #777;
-      text-align: right;
-      margin-top: 8px;
-      padding-right: 8px;
-      letter-spacing: 0.3px;
-    }
-    /* ---------- END MENU ---------- */
-
-    /* ---- content ---- */
-    .content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 0;
-    }
-
-    .page-title {
-      text-align: center;
-      margin-bottom: 24px;
-      animation: fadeInUp 0.7s cubic-bezier(0.22,0.8,0.36,1);
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .page-title h1 {
-      font-size: 36px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #fff 0%, #facc15 50%, #fff 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 6px;
-    }
-    .page-title p {
-      color: #cbd5e1;
-      font-size: 0.98rem;
-    }
-
-    /* type selection cards */
-    .type-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 22px;
-      max-width: 760px;
-      width: 100%;
-      margin-bottom: 30px;
-    }
-    .type-card {
-      flex: 1 1 240px;
-      background: rgba(30,30,44,0.45);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-radius: 28px;
-      padding: 28px 18px 24px;
-      box-shadow: 0 18px 35px -8px rgba(0,0,0,0.6);
-      border: 1.5px solid rgba(255,255,255,0.06);
-      transition: all 0.4s cubic-bezier(0.25,0.8,0.25,1.2);
-      cursor: pointer;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .type-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 28px;
-      opacity: 0;
-      background: linear-gradient(135deg, rgba(74,222,128,0.08), transparent 60%);
-      transition: opacity 0.4s;
-    }
-    .type-card:hover::after { opacity: 1; }
-    .type-card.active {
-      border: 2px solid var(--green);
-      box-shadow: 0 0 32px rgba(74,222,128,0.45);
-      background: rgba(20,30,35,0.5);
-      transform: translateY(-6px);
-    }
-    .type-icon { font-size: 48px; margin-bottom: 12px; }
-    .type-card h3 { font-size: 28px; margin-bottom: 6px; }
-    .type-badge {
-      background: rgba(255,255,255,0.15);
-      padding: 5px 14px;
-      border-radius: 30px;
-      font-size: 13px;
-      display: inline-block;
-      margin-bottom: 16px;
-    }
-    .type-desc { font-size: 14px; opacity: 0.85; margin-bottom: 22px; }
-    .select-btn {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.18);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 40px;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: 0.25s;
-      width: 100%;
-    }
-    .type-card.active .select-btn {
-      background: var(--green);
-      border-color: var(--green);
-      color: #0a1f0e;
-      box-shadow: 0 0 22px rgba(74,222,128,0.6);
-    }
-
-    /* order details card */
-    .order-card {
-      width: 100%;
-      max-width: 520px;
-      padding: 32px 28px;
-      border-radius: 32px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: var(--card-shadow);
-      border: 1px solid var(--glass-border);
-      margin-top: 8px;
-      animation: fadeInUp 0.85s ease;
-    }
-    .order-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 22px;
-    }
-    .order-header h2 { font-size: 26px; font-weight: 600; }
-    .order-type-tag {
-      background: var(--green);
-      color: #0a1f0e;
-      padding: 5px 14px;
-      border-radius: 40px;
-      font-size: 14px;
-      font-weight: 700;
-      box-shadow: 0 0 16px rgba(74,222,128,0.5);
-    }
-
-    .color-section {
-      margin: 14px 0 8px;
-      transition: all 0.3s;
-    }
-    .color-section.hidden { display: none; }
-    .color-label { font-size: 0.9rem; margin-bottom: 10px; color: #d1d5db; }
-    .color-options { display: flex; gap: 14px; flex-wrap: wrap; }
-    .color-option {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-    }
-    .color-circle {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.3);
-      transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
-    .color-option.selected .color-circle {
-      border: 3px solid var(--green);
-      box-shadow: 0 0 18px rgba(74,222,128,0.6);
-      transform: scale(1.08);
-    }
-    .color-option span { font-size: 11px; text-transform: capitalize; color: #ccc; }
-
-    .input-field, .address-field {
-      width: 100%;
-      padding: 14px 18px;
-      margin: 14px 0;
-      border: none;
-      border-radius: 18px;
-      outline: none;
-      background: rgba(255,255,255,0.92);
-      color: #111;
-      font-size: 16px;
-      font-weight: 500;
-      border: 1px solid rgba(255,255,255,0.25);
-      transition: all 0.25s;
-    }
-    .input-field:focus, .address-field:focus {
-      background: white;
-      box-shadow: 0 0 0 4px rgba(74,222,128,0.3);
-      border-color: var(--green);
-    }
-    .address-field {
-      min-height: 85px;
-      resize: vertical;
-      font-family: inherit;
-    }
-
-    .payment {
-      margin-top: 20px;
-      background: rgba(0,0,0,0.2);
-      border-radius: 18px;
-      padding: 12px 14px;
-    }
-    .payment p { margin-bottom: 10px; font-weight: 500; }
-    .payment label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 12px 0;
-      padding: 8px 12px;
-      border-radius: 14px;
-      cursor: pointer;
-      background: rgba(0,0,0,0.25);
-      transition: 0.2s;
-    }
-    .payment label:hover { background: rgba(255,255,255,0.05); }
-    .payment input[type="radio"] {
-      accent-color: var(--green);
-      width: 20px;
-      height: 20px;
-      margin-left: 10px;
-    }
-
-    /* QR section */
-    .qr-section {
-      margin-top: 20px;
-      padding: 18px 12px;
-      background: rgba(0,0,0,0.25);
-      border-radius: 22px;
-      text-align: center;
-      transition: all 0.35s ease;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .qr-section.hidden { display: none; }
-    .qr-code {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-    }
-    #qrCanvas {
-      width: 180px;
-      height: 180px;
-      border-radius: 16px;
-      background: white;
-      padding: 8px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      border: 1px solid rgba(250,204,21,0.35);
-    }
-    .qr-note {
-      font-size: 0.8rem;
-      color: #ccc;
-      max-width: 240px;
-      margin: 0 auto;
-    }
-    .qr-note strong { color: #facc15; }
-    .upi-app-btn {
-      background: #facc15;
-      color: #1e1e2a;
-      border: none;
-      padding: 10px 22px;
-      border-radius: 40px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      margin-top: 6px;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(250,204,21,0.35);
-      transition: 0.2s;
-    }
-    .upi-app-btn:hover {
-      background: #ffe066;
-      transform: scale(1.03);
-    }
-
-    .btn {
-      width: 100%;
-      margin-top: 26px;
-      padding: 16px;
-      border: none;
-      border-radius: 40px;
-      font-size: 18px;
-      font-weight: 700;
-      color: white;
-      cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #4ade80);
-      box-shadow: 0 8px 24px rgba(34,197,94,0.4);
-      transition: 0.3s;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .btn:hover {
-      transform: scale(1.02);
-      box-shadow: 0 0 32px rgba(74,222,128,0.8);
-    }
-    .btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: 0 8px 24px rgba(34,197,94,0.2);
-    }
-    .note {
-      text-align: center;
-      font-size: 13px;
-      color: #b0b0c8;
-      margin-top: 12px;
-    }
-    .footer-note {
-      text-align: center;
-      padding: 24px 0 12px;
-      color: #94a3b8;
-      font-size: 0.9rem;
-      border-top: 1px dashed rgba(250,204,21,0.15);
-      margin-top: 25px;
-    }
-
-    @media (max-width: 550px) {
-      .wrapper { padding: 0 14px 20px; }
-      .logo { font-size: 24px; }
-      .menu-btn { width: 44px; height: 44px; }
-      .type-card { padding: 22px 12px 20px; }
-      .order-card { padding: 24px 18px; }
-      .page-title h1 { font-size: 28px; }
-    }
-  </style>
+        @media (max-width: 500px) {
+            .wrapper { padding: 0 14px 20px; }
+            .logo { font-size: 24px; }
+            .menu-btn { width: 44px; height: 44px; }
+            .contact-card { padding: 28px 18px; }
+            .action-row { flex-direction: column; }
+        }
+    </style>
 </head>
 <body>
-
-<!-- Background layers -->
-<div class="bg-layer">
-  <div class="bg-image"></div>
-  <div class="bg-overlay"></div>
-</div>
-<div class="particles-container" id="particlesContainer" aria-hidden="true"></div>
-
-<div class="wrapper">
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <div class="logo">
-      <span>Feelix</span>
-      <span class="logo-emoji">🤖</span>
+    <div class="bg-layer">
+        <div class="bg-image"></div>
+        <div class="bg-overlay"></div>
     </div>
-    <div class="menu-container" id="menuContainer">
-      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-haspopup="true" aria-expanded="false">
-        <span class="dots-icon" aria-hidden="true">
-          <span></span><span></span><span></span>
-        </span>
-      </button>
-      <nav class="quick-dropdown" id="quickDropdown" aria-label="Quick navigation">
-        <a href="index.html" class="quick-link"><span class="link-icon">🏠</span> Home</a>
-        <a href="order.html" class="quick-link"><span class="link-icon">📦</span> Order</a>
-        <a href="contact.html" class="quick-link"><span class="link-icon">💬</span> Contact</a>
-        <div class="dropdown-note">⚡ quick links</div>
-      </nav>
-    </div>
-  </div>
+    <div class="particles-container" id="particlesContainer" aria-hidden="true"></div>
 
-  <!-- Main Content -->
-  <div class="content">
-    <div class="page-title">
-      <h1>complete your order</h1>
-      <p>select type · fill details · instant WhatsApp confirmation</p>
-    </div>
+    <div class="wrapper">
+        <!-- Top bar with three‑dot menu -->
+        <header class="top-bar">
+            <div class="logo">
+                <span>Feelix</span>
+                <span class="logo-emoji">🤖</span>
+            </div>
+            <div class="menu-container" id="menuContainer">
+                <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-haspopup="true" aria-expanded="false">
+                    <span class="dots-icon" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                    </span>
+                </button>
+                <nav class="quick-dropdown" id="quickDropdown" aria-label="Quick navigation">
+                    <a href="index.html" class="quick-link"><span class="link-icon">🏠</span> Home</a>
+                    <a href="order.html" class="quick-link"><span class="link-icon">📦</span> Order</a>
+                    <a href="contact.html" class="quick-link"><span class="link-icon">💬</span> Contact</a>
+                    <div class="dropdown-note">⚡ quick links</div>
+                </nav>
+            </div>
+        </header>
 
-    <!-- Type Selection -->
-    <div class="type-row">
-      <div class="type-card" id="regularCard" data-type="regular">
-        <div class="type-icon">📦</div>
-        <h3>Regular</h3>
-        <span class="type-badge">ready to ship</span>
-        <div class="type-desc">Quick & simple · fixed features<br>Ships in 24h.</div>
-        <button class="select-btn" id="selectRegularBtn">Select Regular</button>
-      </div>
-      <div class="type-card" id="customCard" data-type="customized">
-        <div class="type-icon">✨</div>
-        <h3>Customized</h3>
-        <span class="type-badge">tailored for you</span>
-        <div class="type-desc">Personalized specs · extra care<br>We'll contact you.</div>
-        <button class="select-btn" id="selectCustomBtn">Select Custom</button>
-      </div>
-    </div>
+        <!-- Main contact card -->
+        <div class="content">
+            <div class="contact-card">
+                <h2>Let's talk</h2>
+                <p class="subhead">We're real humans behind Feelix ✨</p>
 
-    <!-- Order Details Card -->
-    <div class="order-card">
-      <div class="order-header">
-        <h2>Your details</h2>
-        <span class="order-type-tag" id="orderTypeTag">Regular</span>
-      </div>
+                <div class="info-row">
+                    <div class="info-icon">📱</div>
+                    <div class="info-text">
+                        <div class="label">Phone</div>
+                        <div class="value"><a href="tel:+918133909528">+91 81339 09528</a></div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon">✉️</div>
+                    <div class="info-text">
+                        <div class="label">Email</div>
+                        <div class="value"><a href="mailto:roboticsfeelix@gmail.com">roboticsfeelix@gmail.com</a></div>
+                    </div>
+                </div>
 
-      <!-- Color selection (only Regular) -->
-      <div id="colorSection" class="color-section">
-        <div class="color-label">Choose colour:</div>
-        <div class="color-options" id="colorOptions">
-          <div class="color-option" data-color="Red">
-            <div class="color-circle" style="background: #ef4444;"></div><span>Red</span>
-          </div>
-          <div class="color-option" data-color="White">
-            <div class="color-circle" style="background: #f9fafb; border:1px solid #888;"></div><span>White</span>
-          </div>
-          <div class="color-option" data-color="Pink">
-            <div class="color-circle" style="background: #f472b6;"></div><span>Pink</span>
-          </div>
-          <div class="color-option" data-color="Blue">
-            <div class="color-circle" style="background: #3b82f6;"></div><span>Blue</span>
-          </div>
-          <div class="color-option" data-color="Brown">
-            <div class="color-circle" style="background: #92400e;"></div><span>Brown</span>
-          </div>
+                <!-- LEFT: WhatsApp · RIGHT: Call -->
+                <div class="action-row">
+                    <a href="https://wa.me/918133909528" target="_blank" class="action-btn whatsapp-btn">
+                        <span>💬</span> WhatsApp
+                    </a>
+                    <a href="tel:+918133909528" class="action-btn call-btn">
+                        <span>📞</span> Call Now
+                    </a>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <input type="text" id="name" class="input-field" placeholder="Your full name">
-      <input type="number" id="quantity" class="input-field" placeholder="Quantity" min="1" value="1">
-      <textarea id="address" class="address-field" placeholder="Full delivery address (street, city, pincode)"></textarea>
-
-      <div class="payment">
-        <p>Payment method:</p>
-        <label>Cash on Delivery (COD) <input type="radio" name="pay" value="COD" checked></label>
-        <label>Prepaid (UPI / Card) <input type="radio" name="pay" value="PREP"></label>
-      </div>
-
-      <!-- QR Section (Regular + Prepaid) -->
-      <div id="qrSection" class="qr-section hidden">
-        <div class="qr-code">
-          <canvas id="qrCanvas" width="200" height="200"></canvas>
-          <div class="qr-note">
-            <strong>Scan to pay ₹<span id="qrAmount">0</span></strong><br>
-            UPI: himanshuramchiary519-1@oksbi<br>
-            <span style="font-size:0.75rem;">Himanshu Ramchiary</span>
-          </div>
-          <button class="upi-app-btn" id="upiAppBtn">📱 Pay via UPI App</button>
-        </div>
-      </div>
-
-      <button class="btn" id="confirmOrderBtn">Confirm & Send to WhatsApp →</button>
-      <p class="note">Your order summary will open in WhatsApp</p>
+        <footer class="footer-note">
+            © 2026 Feelix Robotics · your desk, alive ⚡
+        </footer>
     </div>
-  </div>
 
-  <div class="footer-note">
-    @2026 Feelix Robotics all rights reserved<br>
-    <span style="opacity:0.7;">⚡ your desk, alive</span>
-  </div>
-</div>
+    <script>
+        (function() {
+            // Floating particles
+            const container = document.getElementById('particlesContainer');
+            const count = 20;
+            const frag = document.createDocumentFragment();
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = Math.random() * 3 + 1.5;
+                p.style.cssText = `
+                    --size: ${size}px;
+                    --dur: ${Math.random() * 8 + 7}s;
+                    --delay: ${Math.random() * 6}s;
+                    --drift: ${(Math.random() - 0.5) * 60}px;
+                    left: ${Math.random() * 90}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${Math.random() < 0.5 ? '#facc15' : '#4ade80'};
+                `;
+                frag.appendChild(p);
+            }
+            container.appendChild(frag);
 
-<script>
-  const YOUR_WHATSAPP_NUMBER = '918133909528';
-  const UPI_ID = 'himanshuramchiary519-1@oksbi';
-  const PAYEE_NAME = 'Himanshu Ramchiary';
-  const PRICE_PER_UNIT = 1999;
+            // Three-dot menu logic
+            const menuBtn = document.getElementById('menuBtn');
+            const dropdown = document.getElementById('quickDropdown');
+            const menuContainer = document.getElementById('menuContainer');
+            const quickLinks = dropdown.querySelectorAll('.quick-link');
+            let isOpen = false;
 
-  (function() {
-    // DOM elements
-    const regularCard = document.getElementById('regularCard');
-    const customCard = document.getElementById('customCard');
-    const orderTypeTag = document.getElementById('orderTypeTag');
-    const confirmBtn = document.getElementById('confirmOrderBtn');
-    const nameInput = document.getElementById('name');
-    const quantityInput = document.getElementById('quantity');
-    const addressInput = document.getElementById('address');
-    const qrSection = document.getElementById('qrSection');
-    const qrCanvas = document.getElementById('qrCanvas');
-    const qrAmountSpan = document.getElementById('qrAmount');
-    const paymentRadios = document.querySelectorAll('input[name="pay"]');
-    const colorSection = document.getElementById('colorSection');
-    const colorOptions = document.querySelectorAll('.color-option');
-    const upiAppBtn = document.getElementById('upiAppBtn');
+            function openMenu() {
+                isOpen = true;
+                dropdown.classList.add('open');
+                menuBtn.classList.add('active');
+                menuBtn.setAttribute('aria-expanded', 'true');
+            }
+            function closeMenu() {
+                isOpen = false;
+                dropdown.classList.remove('open');
+                menuBtn.classList.remove('active');
+                menuBtn.setAttribute('aria-expanded', 'false');
+            }
 
-    let currentType = 'regular';
-    let selectedColor = null;
-    let currentUpiUrl = '';
-
-    // ---- Calculate total amount (exact price per unit) ----
-    function getTotalAmount(quantity) {
-      return quantity * PRICE_PER_UNIT;
-    }
-
-    // ---- Color selection ----
-    colorOptions.forEach(opt => {
-      opt.addEventListener('click', () => {
-        colorOptions.forEach(o => o.classList.remove('selected'));
-        opt.classList.add('selected');
-        selectedColor = opt.dataset.color;
-      });
-    });
-
-    // ---- QR Code generation (canvas) ----
-    function generateQRCode(upiUrl) {
-      if (!upiUrl) return;
-      QRCode.toCanvas(qrCanvas, upiUrl, {
-        width: 200,
-        margin: 1,
-        color: { dark: '#000000', light: '#ffffff' }
-      }, (error) => {
-        if (error) console.warn('QR generation error:', error);
-      });
-      currentUpiUrl = upiUrl;
-    }
-
-    // ---- Show/hide QR & update amount ----
-    function updateQRCode() {
-      const isPrepaid = document.querySelector('input[name="pay"]:checked')?.value === 'PREP';
-      const showQR = (currentType === 'regular' && isPrepaid);
-
-      if (showQR) {
-        const quantity = parseInt(quantityInput.value) || 1;
-        const amount = getTotalAmount(quantity);
-        qrAmountSpan.textContent = amount.toLocaleString('en-IN');
-        
-        const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR`;
-        generateQRCode(upiUrl);
-        qrSection.classList.remove('hidden');
-      } else {
-        qrSection.classList.add('hidden');
-      }
-    }
-
-    quantityInput.addEventListener('input', updateQRCode);
-    paymentRadios.forEach(r => r.addEventListener('change', updateQRCode));
-
-    // ---- UPI App button ----
-    upiAppBtn.addEventListener('click', () => {
-      if (currentUpiUrl) {
-        window.location.href = currentUpiUrl;
-      } else {
-        const quantity = parseInt(quantityInput.value) || 1;
-        const amount = getTotalAmount(quantity);
-        const fallbackUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR`;
-        window.location.href = fallbackUrl;
-      }
-    });
-
-    // ---- Set active type ----
-    function setActiveType(type) {
-      regularCard.classList.remove('active');
-      customCard.classList.remove('active');
-      if (type === 'regular') {
-        regularCard.classList.add('active');
-        orderTypeTag.textContent = 'Regular';
-        currentType = 'regular';
-        colorSection.classList.remove('hidden');
-        if (!selectedColor) {
-          const firstColor = document.querySelector('.color-option[data-color="Red"]');
-          if (firstColor) {
-            firstColor.classList.add('selected');
-            selectedColor = 'Red';
-          }
-        }
-      } else {
-        customCard.classList.add('active');
-        orderTypeTag.textContent = 'Customized';
-        currentType = 'customized';
-        colorSection.classList.add('hidden');
-        selectedColor = null;
-      }
-      updateQRCode();
-    }
-
-    regularCard.addEventListener('click', (e) => {
-      if (e.target.tagName === 'BUTTON') return;
-      setActiveType('regular');
-    });
-    customCard.addEventListener('click', (e) => {
-      if (e.target.tagName === 'BUTTON') return;
-      setActiveType('customized');
-    });
-    document.getElementById('selectRegularBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      setActiveType('regular');
-    });
-    document.getElementById('selectCustomBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      setActiveType('customized');
-    });
-
-    // ---- Order ID & Delivery ----
-    function getNextOrderId(paymentMethod) {
-      const key = `feelix_order_counter_${paymentMethod}`;
-      let c = parseInt(localStorage.getItem(key) || '0') + 1;
-      localStorage.setItem(key, c);
-      return `${paymentMethod}${c}`;
-    }
-
-    function getEstimatedDelivery() {
-      const d = new Date();
-      d.setDate(d.getDate() + Math.floor(Math.random() * 3) + 5);
-      return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-    }
-
-    function generateWhatsAppMessage(name, quantity, address, paymentMethod, orderType, orderId, amount, deliveryDate, color) {
-      const typeDisplay = orderType === 'regular' ? 'Regular' : 'Customized';
-      const paymentStatus = paymentMethod === 'COD' ? 'Pending (Cash on Delivery)' : 'Paid (Prepaid)';
-      
-      let msg = `✨ *New Feelix Order* ✨\n\n`;
-      msg += `🆔 *Order ID:* ${orderId}\n`;
-      msg += `👤 *Name:* ${name}\n`;
-      msg += `🤖 *Type:* ${typeDisplay}\n`;
-      if (orderType === 'regular' && color) msg += `🎨 *Color:* ${color}\n`;
-      msg += `🔢 *Quantity:* ${quantity}\n`;
-      if (orderType === 'regular') {
-        msg += `💰 *Amount:* ₹${amount}\n`;
-      } else {
-        msg += `💰 *Pricing:* To be discussed (custom)\n`;
-      }
-      msg += `💳 *Payment:* ${paymentMethod} (${paymentStatus})\n`;
-      msg += `📅 *Est. Delivery:* ${deliveryDate}\n`;
-      msg += `📍 *Address:* ${address}\n\n`;
-      msg += `_Thank you for choosing Feelix! We'll process your order shortly._ 🚀`;
-      return msg;
-    }
-
-    function confirmOrder() {
-      const name = nameInput.value.trim();
-      const quantity = parseInt(quantityInput.value.trim());
-      const address = addressInput.value.trim();
-      const paymentRadio = document.querySelector('input[name="pay"]:checked');
-      
-      if (!name) { alert('Please enter your name'); nameInput.focus(); return; }
-      if (isNaN(quantity) || quantity < 1) { alert('Valid quantity required'); quantityInput.focus(); return; }
-      if (!address) { alert('Please enter delivery address'); addressInput.focus(); return; }
-      if (!paymentRadio) { alert('Select payment method'); return; }
-
-      const paymentMethod = paymentRadio.value;
-      
-      if (currentType === 'regular' && !selectedColor) {
-        alert('Please select a colour for Regular Feelix.');
-        return;
-      }
-
-      if (paymentMethod === 'PREP' && currentType === 'regular') {
-        const totalAmount = getTotalAmount(quantity);
-        if (!confirm(`Have you completed the UPI payment of ₹${totalAmount}? Click OK to proceed.`)) return;
-      }
-
-      const orderId = getNextOrderId(paymentMethod);
-      const totalAmount = (currentType === 'regular') ? getTotalAmount(quantity) : 0;
-      const amountStr = (currentType === 'regular') ? totalAmount.toLocaleString('en-IN') : 'custom';
-      const deliveryDate = getEstimatedDelivery();
-
-      // Local storage saving
-      localStorage.setItem('last_order_name', name);
-      localStorage.setItem('last_order_quantity', quantity);
-      localStorage.setItem('last_order_address', address);
-      localStorage.setItem('last_order_payment', paymentMethod);
-      localStorage.setItem('last_order_type', currentType);
-      localStorage.setItem('last_order_id', orderId);
-      localStorage.setItem('last_order_amount', amountStr);
-      localStorage.setItem('last_order_delivery', deliveryDate);
-      if (selectedColor) localStorage.setItem('last_order_color', selectedColor);
-
-      const message = generateWhatsAppMessage(
-        name, quantity, address, paymentMethod, currentType,
-        orderId, amountStr, deliveryDate, selectedColor
-      );
-
-      const whatsappUrl = `https://api.whatsapp.com/send?phone=${YOUR_WHATSAPP_NUMBER}&text=${encodeURIComponent(message)}`;
-      
-      confirmBtn.textContent = 'Opening WhatsApp...';
-      confirmBtn.disabled = true;
-      window.open(whatsappUrl, '_blank');
-      setTimeout(() => {
-        confirmBtn.textContent = 'Confirm & Send to WhatsApp →';
-        confirmBtn.disabled = false;
-      }, 2000);
-    }
-
-    confirmBtn.addEventListener('click', confirmOrder);
-    [nameInput, quantityInput].forEach(i => i.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); confirmOrder(); }
-    }));
-    addressInput.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); confirmOrder(); }
-    });
-
-    // ---- Initialize type from URL if present ----
-    function applyTypeFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      setActiveType(params.get('type') === 'customized' ? 'customized' : 'regular');
-    }
-    applyTypeFromUrl();
-    if (!regularCard.classList.contains('active') && !customCard.classList.contains('active')) {
-      setActiveType('regular');
-    }
-
-    // ---- Floating particles background ----
-    (function createParticles() {
-      const container = document.getElementById('particlesContainer');
-      const count = 22;
-      const frag = document.createDocumentFragment();
-      for (let i = 0; i < count; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        const size = Math.random() * 3 + 1.5;
-        p.style.cssText = `
-          --size: ${size}px;
-          --dur: ${Math.random() * 8 + 7}s;
-          --delay: ${Math.random() * 6}s;
-          --drift: ${(Math.random() - 0.5) * 60}px;
-          left: ${Math.random() * 90}%;
-          width: ${size}px;
-          height: ${size}px;
-          background: ${Math.random() < 0.5 ? '#facc15' : '#4ade80'};
-        `;
-        frag.appendChild(p);
-      }
-      container.appendChild(frag);
-    })();
-
-    // ---- THREE-DOT MENU LOGIC (JS-based, no checkbox) ----
-    const menuBtn = document.getElementById('menuBtn');
-    const dropdown = document.getElementById('quickDropdown');
-    const menuContainer = document.getElementById('menuContainer');
-    const quickLinks = dropdown.querySelectorAll('.quick-link');
-    let isOpen = false;
-
-    function openMenu() {
-      isOpen = true;
-      dropdown.classList.add('open');
-      menuBtn.classList.add('active');
-      menuBtn.setAttribute('aria-expanded', 'true');
-    }
-
-    function closeMenu() {
-      isOpen = false;
-      dropdown.classList.remove('open');
-      menuBtn.classList.remove('active');
-      menuBtn.setAttribute('aria-expanded', 'false');
-    }
-
-    menuBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      isOpen ? closeMenu() : openMenu();
-    });
-
-    document.addEventListener('click', (event) => {
-      if (isOpen && !menuContainer.contains(event.target)) {
-        closeMenu();
-      }
-    });
-
-    quickLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        closeMenu();
-      });
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isOpen) {
-        closeMenu();
-        menuBtn.focus();
-      }
-    });
-
-    dropdown.addEventListener('click', (e) => e.stopPropagation());
-
-    // Initial QR state
-    updateQRCode();
-  })();
-</script>
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                isOpen ? closeMenu() : openMenu();
+            });
+            document.addEventListener('click', (event) => {
+                if (isOpen && !menuContainer.contains(event.target)) closeMenu();
+            });
+            quickLinks.forEach(link => link.addEventListener('click', closeMenu));
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && isOpen) { closeMenu(); menuBtn.focus(); }
+            });
+            dropdown.addEventListener('click', e => e.stopPropagation());
+        })();
+    </script>
 </body>
 </html>
