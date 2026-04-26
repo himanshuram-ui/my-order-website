@@ -1,214 +1,1118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feelix - Your Desk Buddy</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Feelix · your desk buddy</title>
 
-<style>
-body {
-  margin:0;
-  font-family: Arial, sans-serif;
-  color: white;
+    <!-- 🔥 High-priority preload for instant video delivery -->
+    <link rel="preload" as="video" href="video-4.mp4" type="video/mp4" fetchpriority="high">
+    <link rel="preload" as="video" href="video-4.webm" type="video/webm" fetchpriority="high">
 
-  /* KEEP YOUR BACKGROUND */
-  background: url("robot.jpg") no-repeat center center/cover;
-}
+    <style>
+        :root {
+            --yellow: #facc15;
+            --yellow-glow: rgba(250, 204, 21, 0.5);
+            --green: #4ade80;
+            --green-glow: rgba(74, 222, 128, 0.6);
+            --bg-card: rgba(18, 18, 28, 0.75);
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text: #f1f5f9;
+            --text-muted: #cbd5e1;
+            --radius-lg: 28px;
+            --radius-xl: 36px;
+        }
 
-/* 🔥 DARK OVERLAY FOR PREMIUM LOOK */
-body::before{
-  content:"";
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background: rgba(0,0,0,0.6);
-  z-index:-1;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* HEADER */
-header {
-  text-align:center;
-  padding:20px;
-  font-size:26px;
-  letter-spacing:1px;
-  font-weight:600;
-}
+        html {
+            scroll-behavior: smooth;
+        }
 
-/* HERO */
-.hero {
-  text-align:center;
-  padding:60px 20px 30px;
-}
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', 'Inter', 'Arial', sans-serif;
+            color: var(--text);
+            background: #0a0a14;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-.hero img {
-  width:200px;
-  border-radius:20px;
-  margin-bottom:20px;
-}
+        /* -------------------- ANIMATED BACKGROUND -------------------- */
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
 
-.hero h1 {
-  font-size:34px;
-  margin-bottom:10px;
-}
+        .bg-image {
+            position: absolute;
+            inset: 0;
+            background: url("background.jpeg") no-repeat center center/cover;
+            opacity: 0.35;
+            filter: saturate(0.6) brightness(0.5);
+        }
 
-.hero p {
-  max-width:420px;
-  margin:0 auto;
-  color:#d1d5db;
-  font-size:15px;
-}
+        .bg-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 30%, rgba(30, 20, 50, 0.7) 0%, rgba(5, 5, 18, 0.9) 70%, #060612 100%);
+        }
 
-/* SECTION */
-.section {
-  padding:30px 20px;
-  max-width:700px;
-  margin:auto;
-  text-align:center;
-}
+        /* floating particles */
+        .particles-container {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
 
-.section h2 {
-  font-size:24px;
-  margin-bottom:10px;
-  color:#facc15; /* 🔥 yellow highlight */
-}
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--yellow);
+            opacity: 0;
+            animation: floatUp var(--dur) var(--delay) infinite ease-in;
+            will-change: transform, opacity;
+        }
 
-.section p {
-  color:#d1d5db;
-  font-size:15px;
-}
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            25% {
+                transform: translateY(70vh) translateX(var(--drift)) scale(var(--size));
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(40vh) translateX(calc(var(--drift) * 0.3)) scale(calc(var(--size) * 0.8));
+                opacity: 0.35;
+            }
+            75% {
+                transform: translateY(15vh) translateX(calc(var(--drift) * -0.4)) scale(calc(var(--size) * 0.5));
+                opacity: 0.12;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+        }
 
-/* FEATURES */
-ul {
-  list-style:none;
-  padding:0;
-  line-height:2;
-  color:#e5e7eb;
-}
+        /* subtle animated gradient sweep */
+        .sweep-glow {
+            position: fixed;
+            top: -40%;
+            left: -30%;
+            width: 160%;
+            height: 160%;
+            z-index: -1;
+            pointer-events: none;
+            background: conic-gradient(from 0deg at 50% 50%,
+                    transparent 0deg,
+                    rgba(250, 204, 21, 0.03) 40deg,
+                    transparent 80deg,
+                    rgba(74, 222, 128, 0.03) 160deg,
+                    transparent 200deg,
+                    transparent 360deg);
+            animation: sweepRotate 25s linear infinite;
+            will-change: transform;
+        }
 
-/* PERFECT FOR */
-.perfect {
-  color:#facc15;
-  font-weight:500;
-}
+        @keyframes sweepRotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-/* BUTTON (UNCHANGED BUT CENTERED CLEAN) */
-.btn {
-  display: block;
-  width: 240px;
-  margin: 20px auto;
-  padding: 14px 20px;
-  border: none;
-  border-radius: 16px;
-  font-size: 16px;
-  font-weight: 600;
-  color: white;
-  cursor: pointer;
-  background: linear-gradient(135deg, #22c55e, #4ade80);
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 10px rgba(34,197,94,0.4);
-  text-decoration: none;        /* for anchor fallback */
-  text-align: center;
-}
+        /* -------------------- WRAPPER -------------------- */
+        .wrapper {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 0 24px 32px;
+            position: relative;
+            z-index: 1;
+        }
 
-.btn:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 0 25px rgba(34,197,94,0.8);
-}
+        /* -------------------- TOP BAR -------------------- */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 0 10px;
+            position: relative;
+            z-index: 10;
+        }
 
-.btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(255,255,255,0.5),
-    transparent
-  );
-  transform: skewX(-25deg);
-}
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: white;
+            text-shadow: 0 4px 20px rgba(250, 204, 21, 0.35);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: logoPulse 3s ease-in-out infinite;
+        }
 
-.btn:hover::before {
-  animation: shine 0.8s ease;
-}
+        .logo-emoji {
+            display: inline-block;
+            font-size: 28px;
+            animation: botBounce 1.8s ease-in-out infinite;
+        }
 
-@keyframes shine {
-  0% { left: -75%; }
-  100% { left: 125%; }
-}
-</style>
+        @keyframes logoPulse {
+            0%,
+            100% {
+                text-shadow: 0 4px 20px rgba(250, 204, 21, 0.35);
+            }
+            50% {
+                text-shadow: 0 4px 35px rgba(250, 204, 21, 0.7), 0 0 60px rgba(250, 204, 21, 0.25);
+            }
+        }
+
+        @keyframes botBounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            20% {
+                transform: translateY(-6px);
+            }
+            40% {
+                transform: translateY(0);
+            }
+            55% {
+                transform: translateY(-2px);
+            }
+            70% {
+                transform: translateY(0);
+            }
+        }
+
+        /* -------------------- MENU BUTTON (REDESIGNED) -------------------- */
+        .menu-container {
+            position: relative;
+            z-index: 100;
+        }
+
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: rgba(20, 20, 32, 0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            position: relative;
+            z-index: 101;
+            outline: none;
+            padding: 0;
+        }
+        .menu-btn:hover {
+            background: rgba(30, 30, 45, 0.8);
+            border-color: rgba(250, 204, 21, 0.55);
+            box-shadow: 0 0 28px rgba(250, 204, 21, 0.35), 0 8px 20px rgba(0, 0, 0, 0.5);
+            transform: scale(1.04);
+        }
+        .menu-btn:active {
+            transform: scale(0.92);
+            transition: transform 0.1s;
+        }
+        .menu-btn:focus-visible {
+            outline: 2px solid #facc15;
+            outline-offset: 4px;
+        }
+
+        /* three-dot icon */
+        .dots-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            pointer-events: none;
+            transition: gap 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+        }
+        .dots-icon span {
+            display: block;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            box-shadow: 0 0 6px rgba(250, 204, 21, 0.3);
+        }
+        .menu-btn:hover .dots-icon span {
+            background: #facc15;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.7);
+        }
+        /* active state - dots spread */
+        .menu-btn.active .dots-icon {
+            gap: 6px;
+        }
+        .menu-btn.active .dots-icon span:nth-child(1) {
+            transform: translateY(0px) rotate(0deg);
+        }
+        .menu-btn.active .dots-icon span:nth-child(2) {
+            opacity: 0.6;
+        }
+        .menu-btn.active .dots-icon span:nth-child(3) {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        /* -------------------- DROPDOWN (REDESIGNED) -------------------- */
+        .quick-dropdown {
+            position: absolute;
+            top: 58px;
+            right: 0;
+            background: rgba(14, 14, 26, 0.94);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid rgba(250, 204, 21, 0.3);
+            border-radius: 20px;
+            padding: 10px 8px;
+            min-width: 200px;
+            box-shadow: 0 28px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(250, 204, 21, 0.1), 0 0 60px rgba(250, 204, 21, 0.08);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-14px) scale(0.9);
+            transition: all 0.28s cubic-bezier(0.22, 0.9, 0.36, 1);
+            pointer-events: none;
+        }
+        .quick-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin: 2px 0;
+            border-radius: 14px;
+            color: #e2e8f0;
+            font-weight: 500;
+            font-size: 1.05rem;
+            text-decoration: none;
+            background: transparent;
+            transition: all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1.1);
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .quick-link::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(250, 204, 21, 0.14), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.25s;
+            pointer-events: none;
+        }
+        .quick-link:hover {
+            background: rgba(250, 204, 21, 0.12);
+            border-color: rgba(250, 204, 21, 0.5);
+            color: #facc15;
+            transform: translateX(6px);
+        }
+        .quick-link:hover::after {
+            opacity: 1;
+        }
+        .quick-link .link-icon {
+            font-size: 1.35rem;
+            transition: transform 0.25s;
+            display: inline-block;
+        }
+        .quick-link:hover .link-icon {
+            transform: scale(1.25) rotate(-10deg);
+        }
+        .dropdown-note {
+            font-size: 0.68rem;
+            color: #777;
+            text-align: right;
+            margin-top: 8px;
+            padding-right: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        /* -------------------- HERO -------------------- */
+        .hero {
+            text-align: center;
+            padding: 24px 10px 16px;
+            animation: fadeInUp 0.8s cubic-bezier(0.22, 0.8, 0.36, 1) both;
+            position: relative;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-video-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        /* glow ring around video */
+        .video-glow-ring {
+            position: absolute;
+            inset: -6px;
+            border-radius: 38px;
+            background: conic-gradient(from 0deg,
+                    transparent 0deg,
+                    rgba(250, 204, 21, 0.5) 60deg,
+                    transparent 120deg,
+                    rgba(74, 222, 128, 0.5) 200deg,
+                    transparent 260deg,
+                    rgba(250, 204, 21, 0.4) 320deg,
+                    transparent 360deg);
+            animation: ringRotate 5s linear infinite;
+            z-index: 0;
+            filter: blur(8px);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        @keyframes ringRotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hero-video {
+            width: 25%;
+            max-width: 25%;
+            height: auto;
+            aspect-ratio: 9 / 16;
+            object-fit: cover;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 240, 0.12);
+            background: #0b0b10;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2), box-shadow 0.4s ease;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-video:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 40px rgba(250, 204, 21, 0.4), 0 20px 50px -10px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(250, 204, 21, 0.5);
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 0%, #facc15 40%, #fff 70%, #facc15 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmerText 4s ease-in-out infinite;
+        }
+        @keyframes shimmerText {
+            0%,
+            100% {
+                background-position: 0% center;
+            }
+            50% {
+                background-position: 100% center;
+            }
+        }
+
+        .hero p {
+            max-width: 460px;
+            margin: 0 auto;
+            color: #cbd5e1;
+            font-size: 16px;
+            line-height: 1.55;
+        }
+
+        /* floating emoji accents */
+        .floating-emoji {
+            position: absolute;
+            font-size: 2rem;
+            pointer-events: none;
+            animation: floatEmoji var(--fdur) var(--fdelay) infinite ease-in-out;
+            opacity: 0.5;
+            will-change: transform;
+            z-index: 0;
+        }
+        @keyframes floatEmoji {
+            0%,
+            100% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.35;
+            }
+            25% {
+                transform: translateY(-18px) translateX(10px) rotate(6deg);
+                opacity: 0.65;
+            }
+            50% {
+                transform: translateY(-8px) translateX(-8px) rotate(-4deg);
+                opacity: 0.5;
+            }
+            75% {
+                transform: translateY(-22px) translateX(4px) rotate(3deg);
+                opacity: 0.55;
+            }
+        }
+
+        /* -------------------- SECTIONS -------------------- */
+        .section {
+            padding: 28px 8px;
+            max-width: 720px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .section.reveal {
+            opacity: 0;
+            transform: translateY(35px);
+            transition: opacity 0.7s cubic-bezier(0.22, 0.8, 0.36, 1), transform 0.7s cubic-bezier(0.22, 0.8, 0.36, 1);
+        }
+        .section.reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section h2 {
+            font-size: 26px;
+            margin-bottom: 14px;
+            color: #facc15;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            position: relative;
+            display: inline-block;
+        }
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #facc15, transparent);
+            transition: transform 0.5s cubic-bezier(0.22, 0.8, 0.36, 1);
+        }
+        .section.reveal.visible h2::after {
+            transform: translateX(-50%) scaleX(1);
+        }
+
+        .section p {
+            color: #cbd5e1;
+            font-size: 16px;
+            line-height: 1.55;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            line-height: 2.2;
+            color: #e5e7eb;
+            font-size: 1.1rem;
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.5s cubic-bezier(0.22, 0.8, 0.36, 1), transform 0.5s cubic-bezier(0.22, 0.8, 0.36, 1);
+            will-change: transform, opacity;
+        }
+        .section.reveal.visible li {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .section.reveal.visible li:nth-child(1) {
+            transition-delay: 0.05s;
+        }
+        .section.reveal.visible li:nth-child(2) {
+            transition-delay: 0.12s;
+        }
+        .section.reveal.visible li:nth-child(3) {
+            transition-delay: 0.19s;
+        }
+        .section.reveal.visible li:nth-child(4) {
+            transition-delay: 0.26s;
+        }
+        .section.reveal.visible li:nth-child(5) {
+            transition-delay: 0.33s;
+        }
+
+        .perfect {
+            color: #facc15;
+            font-weight: 500;
+            font-size: 1.2rem;
+            display: inline-block;
+            animation: gentlePulse 2.5s ease-in-out infinite;
+        }
+        @keyframes gentlePulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.04);
+                opacity: 0.85;
+            }
+        }
+
+        .tagline-highlight {
+            color: #facc15;
+            font-style: italic;
+            margin-top: 12px;
+            display: inline-block;
+            animation: subtleShimmer 3s ease-in-out infinite;
+        }
+        @keyframes subtleShimmer {
+            0%,
+            100% {
+                text-shadow: 0 0 8px rgba(250, 204, 21, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 22px rgba(250, 204, 21, 0.55), 0 0 40px rgba(250, 204, 21, 0.2);
+            }
+        }
+
+        /* -------------------- CTA BUTTON -------------------- */
+        .btn {
+            display: block;
+            width: 260px;
+            margin: 24px auto 12px;
+            padding: 16px 20px;
+            border: none;
+            border-radius: 40px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.35), 0 0 0 0 rgba(74, 222, 128, 0.5);
+            text-decoration: none;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: btnPulse 2.8s ease-in-out infinite;
+            z-index: 1;
+        }
+        @keyframes btnPulse {
+            0%,
+            100% {
+                box-shadow: 0 8px 25px rgba(34, 197, 94, 0.35), 0 0 0 0 rgba(74, 222, 128, 0.5);
+            }
+            50% {
+                box-shadow: 0 8px 30px rgba(34, 197, 94, 0.5), 0 0 0 16px rgba(74, 222, 128, 0);
+            }
+        }
+        .btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 0 40px rgba(74, 222, 128, 0.7), 0 12px 30px rgba(34, 197, 94, 0.5);
+            animation: none;
+        }
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            transform: skewX(-25deg);
+            transition: left 0.6s;
+        }
+        .btn:hover::before {
+            left: 125%;
+        }
+        .btn:active {
+            transform: scale(0.95);
+            transition: transform 0.1s;
+        }
+
+        /* -------------------- FEATURE CARDS -------------------- */
+        .feature-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 16px 20px;
+            font-size: 0.95rem;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.1);
+            cursor: default;
+            opacity: 0;
+            transform: translateY(20px);
+            will-change: transform, opacity, box-shadow;
+        }
+
+        .section.reveal.visible .feature-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .section.reveal.visible .feature-card:nth-child(1) {
+            transition-delay: 0.04s;
+        }
+        .section.reveal.visible .feature-card:nth-child(2) {
+            transition-delay: 0.1s;
+        }
+        .section.reveal.visible .feature-card:nth-child(3) {
+            transition-delay: 0.16s;
+        }
+        .section.reveal.visible .feature-card:nth-child(4) {
+            transition-delay: 0.22s;
+        }
+        .section.reveal.visible .feature-card:nth-child(5) {
+            transition-delay: 0.28s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px) scale(1.03);
+            border-color: rgba(250, 204, 21, 0.5);
+            box-shadow: 0 14px 35px -8px rgba(250, 204, 21, 0.2), 0 0 0 1px rgba(250, 204, 21, 0.3);
+            background: rgba(30, 30, 44, 0.85);
+        }
+        .feature-card .fc-emoji {
+            font-size: 1.5rem;
+            transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+        }
+        .feature-card:hover .fc-emoji {
+            transform: scale(1.3) rotate(-10deg);
+        }
+
+        /* -------------------- FOOTER -------------------- */
+        .footer-note {
+            text-align: center;
+            margin-top: 40px;
+            padding: 24px 0 8px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            border-top: 1px dashed rgba(250, 204, 21, 0.15);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.6s 0.3s, transform 0.6s 0.3s;
+        }
+        .footer-note.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* -------------------- RESPONSIVE -------------------- */
+        @media (max-width: 768px) {
+            .hero-video {
+                width: 38%;
+                max-width: 38%;
+                border-radius: 26px;
+            }
+            .video-glow-ring {
+                border-radius: 32px;
+                inset: -4px;
+                filter: blur(6px);
+            }
+            .hero h1 {
+                font-size: 30px;
+            }
+            .section h2 {
+                font-size: 22px;
+            }
+            .feature-cards {
+                gap: 10px;
+            }
+            .feature-card {
+                padding: 12px 16px;
+                font-size: 0.85rem;
+                border-radius: 16px;
+            }
+            .floating-emoji {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .wrapper {
+                padding: 0 14px 20px;
+            }
+            .hero h1 {
+                font-size: 26px;
+            }
+            .logo {
+                font-size: 22px;
+            }
+            .logo-emoji {
+                font-size: 22px;
+            }
+            .menu-btn {
+                width: 42px;
+                height: 42px;
+            }
+            .dots-icon {
+                gap: 3px;
+            }
+            .dots-icon span {
+                width: 4px;
+                height: 4px;
+            }
+            .quick-dropdown {
+                min-width: 170px;
+                top: 50px;
+                border-radius: 16px;
+                padding: 8px 6px;
+            }
+            .quick-link {
+                padding: 10px 14px;
+                font-size: 0.95rem;
+                border-radius: 12px;
+            }
+            .hero-video {
+                width: 50%;
+                max-width: 50%;
+                border-radius: 22px;
+            }
+            .video-glow-ring {
+                border-radius: 28px;
+                inset: -3px;
+                filter: blur(5px);
+            }
+            .btn {
+                width: 220px;
+                font-size: 16px;
+                padding: 14px 18px;
+            }
+            .section {
+                padding: 20px 4px;
+            }
+            .section h2 {
+                font-size: 20px;
+            }
+            ul {
+                font-size: 1rem;
+                line-height: 2;
+            }
+            .feature-cards {
+                flex-direction: column;
+                align-items: center;
+            }
+            .feature-card {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+            .floating-emoji {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
-<h1 align="left center">Feelix 🤖</h1>
+    <!-- BACKGROUND LAYERS -->
+    <div class="bg-layer">
+        <div class="bg-image"></div>
+        <div class="bg-overlay"></div>
+    </div>
+    <div class="sweep-glow"></div>
+    <div class="particles-container" id="particlesContainer" aria-hidden="true"></div>
 
-<!-- HERO -->
-<div class="hero">
-  <img src="bot.jpeg" alt="Feelix robot">
+    <div class="wrapper">
+        <!-- TOP BAR -->
+        <header class="top-bar">
+            <div class="logo">
+                <span>Feelix</span>
+                <span class="logo-emoji">🤖</span>
+            </div>
+            <div class="menu-container" id="menuContainer">
+                <button
+                class="menu-btn"
+                id="menuBtn"
+                aria-label="Toggle menu"
+                aria-haspopup="true"
+                aria-expanded="false"
+                type="button"
+                >
+                <span class="dots-icon" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </button>
+            <nav class="quick-dropdown" id="quickDropdown" aria-label="Quick navigation">
+                <a href="index.html" class="quick-link">
+                    <span class="link-icon" aria-hidden="true">🏠</span> Home
+                </a>
+                <a href="order.html" class="quick-link">
+                    <span class="link-icon" aria-hidden="true">📦</span> Order
+                </a>
+                <a href="contact.html" class="quick-link">
+                    <span class="link-icon" aria-hidden="true">💬</span> Contact
+                </a>
+                <div class="dropdown-note">⚡ quick links · tap outside</div>
+            </nav>
+        </div>
+    </header>
 
-  <h1>Your Emotional Desk Buddy</h1>
+    <main>
+        <!-- HERO -->
+        <section class="hero" aria-labelledby="hero-heading" style="position:relative;">
+            <!-- floating emojis around hero -->
+            <span class="floating-emoji" style="top:5%;left:8%;--fdur:4.5s;--fdelay:0s;" aria-hidden="true">✨</span>
+            <span class="floating-emoji" style="top:50%;right:6%;--fdur:5.2s;--fdelay:0.8s;" aria-hidden="true">💛</span>
+            <span class="floating-emoji" style="bottom:15%;left:5%;--fdur:4.8s;--fdelay:1.5s;" aria-hidden="true">🌟</span>
+            <span class="floating-emoji" style="top:20%;right:10%;--fdur:5.6s;--fdelay:2.2s;" aria-hidden="true">⚡</span>
 
-  <p>
-    A tiny companion that reacts to your touch, shows emotions, 
-    and brings life to your workspace.
-  </p>
+            <div class="hero-video-wrapper">
+                <div class="video-glow-ring" aria-hidden="true"></div>
+                <!-- Optimized video tag with high fetch priority -->
+                <video id="heroVideo" class="hero-video"
+                       autoplay loop muted playsinline webkit-playsinline disablepictureinpicture
+                       preload="auto" fetchpriority="high"
+                       poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='640' viewBox='0 0 360 640'%3E%3Crect width='360' height='640' fill='%230b0b10'/%3E%3C/svg%3E">
+                    <source src="video-4.webm" type="video/webm">
+                    <source src="video-4.mp4" type="video/mp4">
+                </video>
+                <!-- Inline script to force instant playback -->
+                <script>
+                    (function() {
+                        var video = document.getElementById('heroVideo');
+                        if (!video) return;
+                        // Force play instantly (muted autoplay policy)
+                        video.play().catch(function(e) {
+                            // Will be retried automatically when enough data is available
+                        });
+                        // Retry when the browser determines enough data to start
+                        video.addEventListener('canplay', function() {
+                            if (video.paused) {
+                                video.play().catch(function() {});
+                            }
+                        });
+                    })();
+                </script>
+            </div>
+            <h1 id="hero-heading">Your Emotional Desk Buddy</h1>
+            <p>A tiny companion that reacts to your touch, shows emotions, and brings life to your workspace.</p>
+        </section>
+
+        <!-- CTA -->
+        <section class="section reveal">
+            <p style="font-size:1.2rem;margin-bottom:6px;">Bring your desk to life today ✨</p>
+            <a href="order.html" class="btn">Get Yours Now</a>
+        </section>
+
+        <!-- PERFECT FOR -->
+        <section class="section reveal" aria-labelledby="perfect-heading">
+            <h2 id="perfect-heading">Perfect For</h2>
+            <p class="perfect">Study tables • Gifts 🎁 • Desk decoration • Night companion 🌙</p>
+        </section>
+
+        <!-- ABOUT -->
+        <section class="section reveal" aria-labelledby="about-heading">
+            <h2 id="about-heading">About Feelix</h2>
+            <p>Feelix is a smart mini robot designed to make your desk feel alive. It reacts to touch, displays time, and expresses emotions like happiness, sleep, and surprise.</p>
+            <p class="tagline-highlight">Not just a gadget… it makes your space feel alive ✨</p>
+        </section>
+
+        <!-- FEATURES -->
+        <section class="section reveal" aria-labelledby="features-heading">
+            <h2 id="features-heading">Features</h2>
+            <div class="feature-cards">
+                <div class="feature-card"><span class="fc-emoji">😊</span> Touch responsive emotions</div>
+                <div class="feature-card"><span class="fc-emoji">⏰</span> Displays time</div>
+                <div class="feature-card"><span class="fc-emoji">👀</span> Cute animated face</div>
+                <div class="feature-card"><span class="fc-emoji">🔋</span> Rechargeable battery</div>
+                <div class="feature-card"><span class="fc-emoji">✨</span> Compact aesthetic design</div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer-note" id="footerNote">
+        © 2026 Feelix Robotics all rights reserved<br>
+        <span style="opacity:0.7;">⚡ your live desk companion</span>
+    </footer>
 </div>
 
-<!-- CTA (fixed navigation to select.html) -->
-<div class="section">
-  <p>Bring your desk to life today ✨</p>
+<!-- SCRIPTS: dropdown + particles + scroll reveal + video safety -->
+<script>
+    (function() {
+        "use strict";
 
-  <!-- Corrected button: links directly to select.html -->
-  <a href="select.html" class="btn">Get Yours Now</a>
-</div>
+        // ----- GENERATE PARTICLES -----
+        var particlesContainer = document.getElementById('particlesContainer');
+        var particleCount = 28;
+        var frag = document.createDocumentFragment();
+        for (var i = 0; i < particleCount; i++) {
+            var p = document.createElement('div');
+            p.classList.add('particle');
+            var size = Math.random() * 3.5 + 1.5;
+            var isYellow = Math.random() < 0.5;
+            p.style.cssText =
+                '--size: ' + size + 'px;' +
+                '--dur: ' + (Math.random() * 8 + 8) + 's;' +
+                '--delay: ' + (Math.random() * 7) + 's;' +
+                '--drift: ' + ((Math.random() - 0.5) * 80) + 'px;' +
+                'left: ' + (Math.random() * 92) + '%;' +
+                'width: ' + size + 'px;' +
+                'height: ' + size + 'px;' +
+                'background: ' + (isYellow ? '#facc15' : '#4ade80') + ';';
+            frag.appendChild(p);
+        }
+        particlesContainer.appendChild(frag);
 
-<!-- USE CASE -->
-<div class="section">
-  <h2>Perfect For</h2>
+        // ----- DROPDOWN (JS-based, no checkbox hack) -----
+        var menuBtn = document.getElementById('menuBtn');
+        var dropdown = document.getElementById('quickDropdown');
+        var menuContainer = document.getElementById('menuContainer');
+        var quickLinks = dropdown.querySelectorAll('.quick-link');
+        var isOpen = false;
 
-  <p class="perfect">
-    Study tables • Gifts 🎁 • Desk decoration • Night companion 🌙
-  </p>
-</div>
+        function openMenu() {
+            isOpen = true;
+            dropdown.classList.add('open');
+            menuBtn.classList.add('active');
+            menuBtn.setAttribute('aria-expanded', 'true');
+        }
 
-<!-- ABOUT -->
-<div class="section">
-  <h2>About Feelix</h2>
+        function closeMenu() {
+            isOpen = false;
+            dropdown.classList.remove('open');
+            menuBtn.classList.remove('active');
+            menuBtn.setAttribute('aria-expanded', 'false');
+        }
 
-  <p>
-    Feelix is a smart mini robot designed to make your desk feel alive. 
-    It reacts to touch, displays time, and expresses emotions like happiness, sleep, and surprise.
-  </p>
+        function toggleMenu(e) {
+            e.stopPropagation();
+            if (isOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        }
 
-  <p style="margin-top:10px; font-style:italic; color:#facc15;">
-    Not just a gadget… it makes your space feel alive ✨
-  </p>
-</div>
+        menuBtn.addEventListener('click', toggleMenu);
 
-<!-- FEATURES -->
-<div class="section">
-  <h2>Features</h2>
+        // Close when clicking outside
+        document.addEventListener('click', function(event) {
+            if (isOpen && !menuContainer.contains(event.target)) {
+                closeMenu();
+            }
+        });
 
-  <ul>
-    <li>😊 Touch responsive emotions</li>
-    <li>⏰ Displays time</li>
-    <li>👀 Cute animated face</li>
-    <li>🔋 Rechargeable battery</li>
-    <li>✨ Compact aesthetic design</li>
-  </ul>
-</div>
+        // Close when a link is clicked
+        quickLinks.forEach(function(link) {
+            link.addEventListener('click', function() {
+                closeMenu();
+            });
+        });
 
-  <!-- navigation (links to index & order) -->
-  <div class="nav-links">
-    <a href="index.html">🏠 Home</a>
-    <a href="order.html">📦 Order</a>
-    <a href="contact.html">Contact</a>
-    @2026 Feelix Robotics all right reserved 
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isOpen) {
+                closeMenu();
+                menuBtn.focus();
+            }
+        });
+
+        // Prevent dropdown clicks from bubbling to document
+        dropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // ----- SCROLL REVEAL (Intersection Observer) -----
+        var revealEls = document.querySelectorAll('.section.reveal, .footer-note');
+        var observerOptions = {
+            root: null,
+            rootMargin: '0px 0px -40px 0px',
+            threshold: 0.12
+        };
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        revealEls.forEach(function(el) {
+            observer.observe(el);
+        });
+
+        // ----- VIDEO visibility safety (retry if page hidden) -----
+        var video = document.getElementById('heroVideo');
+        if (video) {
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden && video.paused) {
+                    video.play().catch(function() {});
+                }
+            });
+        }
+    })();
+</script>
+</body>
+</html>
